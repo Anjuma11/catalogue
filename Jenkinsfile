@@ -4,17 +4,17 @@ pipeline {
         label "AGENT-1"
     }
 
-    environment{
-        COURSE="Jenkins"
-    }
+    // environment{
+    //     COURSE="Jenkins"
+    // }
     options{
         timeout(time: 10, unit: "SECONDS")
         disableConcurrentBuilds()
     }
 
-    parameters {
-        string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
-    }
+    // parameters {
+    //     string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
+    // }
 
 
     stages {
@@ -23,7 +23,6 @@ pipeline {
                 script{
                     sh """
                     echo "building..."
-                    echo "Hello ${params.PERSON}"
                     env
                     """
                 }
