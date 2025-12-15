@@ -16,8 +16,25 @@ pipeline {
     //     string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
     // }
 
-
+    
     stages {
+
+        stage('Read package.json'){
+            script{
+                def packageJson = readJSON file: 'package.json'
+                appVersion = packageJson.version
+                echo "Package version: ${appVersion}"
+                
+            }
+        }
+        stage('Install dependencies'){
+            script{
+                sh """
+                    npm install
+                """
+            }
+        }
+
         stage('Build') {
             steps {
                 script{
