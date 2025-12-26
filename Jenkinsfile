@@ -50,6 +50,7 @@ pipeline {
                 }
             }
         }
+
         stage('Build docker image'){
             steps{
                 script{
@@ -64,29 +65,55 @@ pipeline {
 
             }
         }
-        
+        // stage('ECR Vulnerability Scan Check') {
+        //     steps {
+        //         script {
+        //             // Fetch scan results
+        //             def scanResult = sh(
+        //                 script: """
+        //                 aws ecr describe-image-scan-findings \
+        //                     --repository-name ${repoName} \
+        //                     --image-id imageTag=${appVersion} \
+        //                     --region ${region} \
+        //                     --query 'imageScanFindings.findingSeverityCounts' \
+        //                     --output json
+        //                 """,
+        //                 returnStdout: true
+        //             ).trim()
 
-        stage('Build') {
-            steps {
+        //             echo "ECR Scan Result: ${scanResult}"
+
+        //             def findings = readJSON text: scanResult
+
+        //             int critical = findings.CRITICAL ?: 0
+        //             int high = findings.HIGH ?: 0
+
+        //             if (critical > 0 || high > 0) {
+        //                 error("❌ ECR Scan failed: CRITICAL=${critical}, HIGH=${high}")
+        //             } else {
+        //                 echo "✅ ECR Scan passed. No HIGH or CRITICAL vulnerabilities."
+        //             }
+        //         }
+        //     }
+        // }
+        stage('Trigger Deploy'){
+            when {
+                expression {params.deploy_to}
+            }
+            steps{
                 script{
-                    sh """
-                    echo "building..."
-                    env
-                    """
+                    build job:"catalogue-cd"
+                        parameters:[
+                            string(name:'appVersion', value:"${appVersion}"),
+                            string(name: 'deploy_to', value:'dev')
+                        ]
+                        propagate: "false"
+                        wait: "false"
                 }
+            }
+        }
                 
-            }
-        }
-        stage('Test') {
-            steps {
-                echo "testing..."
-            }
-        }
-        stage('Deploy') {
-            steps {
-                echo "deploying..."
-            }
-        }
+   
     }
     
     post{
